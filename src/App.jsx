@@ -723,7 +723,7 @@ export default function AccesoVia() {
               </div>
               <button
                 onClick={() => setActiveRoute(null)}
-                style={{ background: COLORS.warnSoft, border: "none", borderRadius: 10, width: 36, height: 36, cursor: "pointer", color: COLORS.warn, fontSize: 16 }}
+                style={{ background: COLORS.warnSoft, border: "none", borderRadius: 10, width: 36, height: 36, cursor: "pointer", color: COLORS.warn, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
                 aria-label="Cerrar navegación"
               >
                 ✕
