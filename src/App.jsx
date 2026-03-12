@@ -116,15 +116,16 @@ const styles = {
   accessBtn: {
     background: COLORS.accentSoft,
     border: `1px solid ${COLORS.accent}`,
-    borderRadius: 12,
-    padding: "8px 14px",
+    borderRadius: 10,
+    width: 36,
+    height: 36,
     color: COLORS.accent,
-    fontSize: 13,
-    fontWeight: 600,
+    fontSize: 16,
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
-    gap: 6,
+    justifyContent: "center",
+    flexShrink: 0,
   },
   navTabs: {
     display: "flex",
@@ -527,7 +528,7 @@ export default function AccesoVia() {
             <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 1 }}>Bogotá accesible para todos</div>
           </div>
           <button style={styles.accessBtn} onClick={() => setHighContrast(!highContrast)} aria-label="Alto contraste">
-            {highContrast ? "◑" : "◐"} Contraste
+            {highContrast ? "◑" : "◐"}
           </button>
         </div>
         <div style={styles.navTabs}>
