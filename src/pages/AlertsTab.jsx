@@ -1,9 +1,8 @@
 import { COLORS } from "../styles/colors";
 import AlertCard from "../components/AlertCard";
-import { REPORTS } from "../data/reports";
 
-export default function AlertsTab() {
-  const highCount = REPORTS.filter((r) => r.severity === "alta").length;
+export default function AlertsTab({ reports, newCount }) {
+  const highCount = reports.filter((r) => r.severity === "alta").length;
 
   return (
     <section>
@@ -49,20 +48,38 @@ export default function AlertsTab() {
         Reportes recientes en tu zona
       </h2>
 
-      {REPORTS.map((report) => (
-        <AlertCard key={report.id} report={report} />
-      ))}
+      {reports.length === 0 ? (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "48px 16px",
+            color: COLORS.textMuted,
+            fontSize: 14,
+          }}
+          role="status"
+        >
+          <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+          <div style={{ fontWeight: 700, color: COLORS.text, marginBottom: 4 }}>Sin alertas activas</div>
+          <div>Tu zona está despejada. ¡Buen camino!</div>
+        </div>
+      ) : (
+        reports.map((report, i) => (
+          <AlertCard key={report.id} report={report} isNew={i < newCount} />
+        ))
+      )}
 
-      <div
-        style={{
-          textAlign: "center",
-          padding: "16px 0 8px",
-          fontSize: 12,
-          color: COLORS.textMuted,
-        }}
-      >
-        Actualizado hace 5 minutos
-      </div>
+      {reports.length > 0 && (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "16px 0 8px",
+            fontSize: 12,
+            color: COLORS.textMuted,
+          }}
+        >
+          {newCount > 0 ? `${newCount} reporte${newCount > 1 ? "s" : ""} recién enviado${newCount > 1 ? "s" : ""}` : "Actualizado hace 5 minutos"}
+        </div>
+      )}
     </section>
   );
 }

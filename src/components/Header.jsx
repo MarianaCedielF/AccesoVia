@@ -6,7 +6,7 @@ const TABS = [
   { id: "reportar", label: "📢 Reportar" },
 ];
 
-export default function Header({ activeTab, onTabChange, highContrast, onToggleContrast }) {
+export default function Header({ activeTab, onTabChange, highContrast, onToggleContrast, newAlertCount }) {
   return (
     <header
       style={{
@@ -85,9 +85,33 @@ export default function Header({ activeTab, onTabChange, highContrast, onToggleC
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 fontFamily: "inherit",
+                position: "relative",
               }}
             >
               {label}
+              {id === "alertas" && newAlertCount > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: 6,
+                    right: "18%",
+                    background: COLORS.warn,
+                    color: "#fff",
+                    fontSize: 10,
+                    fontWeight: 800,
+                    borderRadius: "50%",
+                    width: 16,
+                    height: 16,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    lineHeight: 1,
+                  }}
+                  aria-label={`${newAlertCount} nuevas alertas`}
+                >
+                  {newAlertCount}
+                </span>
+              )}
             </button>
           );
         })}

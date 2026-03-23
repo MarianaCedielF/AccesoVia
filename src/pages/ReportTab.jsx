@@ -2,20 +2,39 @@ import { useState } from "react";
 import { COLORS } from "../styles/colors";
 import { ISSUE_TYPES } from "../data/routes";
 
-export default function ReportTab({ listening, onToggleListen }) {
+const HIGH_SEVERITY_TYPES = ["Obstáculo en acera", "Rampa bloqueada"];
+
+export default function ReportTab({ listening, onToggleListen, onAddReport }) {
   const [reportType, setReportType] = useState("");
   const [reportLoc, setReportLoc] = useState("");
   const [description, setDescription] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [locTouched, setLocTouched] = useState(false);
+
+  const predictedSeverity = HIGH_SEVERITY_TYPES.includes(reportType) ? "alta" : "media";
 
   const handleSubmit = () => {
-    if (!reportType) return;
+    if (!reportType || !reportLoc) {
+      setLocTouched(true);
+      return;
+    }
+    const issueType = ISSUE_TYPES.find((t) => t.label === reportType);
+    const newReport = {
+      id: Date.now(),
+      type: reportType,
+      location: reportLoc,
+      time: "Ahora mismo",
+      severity: predictedSeverity,
+      icon: issueType ? issueType.icon : "📝",
+    };
     setSubmitted(true);
     setTimeout(() => {
+      onAddReport(newReport);
       setSubmitted(false);
       setReportType("");
       setReportLoc("");
       setDescription("");
+      setLocTouched(false);
     }, 2500);
   };
 
@@ -112,6 +131,27 @@ export default function ReportTab({ listening, onToggleListen }) {
         </div>
       </div>
 
+      {/* Severity preview */}
+      {reportType && (
+        <div
+          style={{
+            marginBottom: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 14px",
+            background: predictedSeverity === "alta" ? "rgba(255,107,53,0.08)" : "rgba(251,191,36,0.08)",
+            borderRadius: 10,
+            border: `1px solid ${predictedSeverity === "alta" ? COLORS.warn + "44" : "#FBBF2444"}`,
+          }}
+        >
+          <span style={{ fontSize: 14 }}>{predictedSeverity === "alta" ? "🔴" : "🟡"}</span>
+          <span style={{ fontSize: 12, color: predictedSeverity === "alta" ? COLORS.warn : "#FBBF24", fontWeight: 600 }}>
+            Severidad {predictedSeverity} — {predictedSeverity === "alta" ? "impacto crítico en accesibilidad" : "impacto moderado"}
+          </span>
+        </div>
+      )}
+
       {/* Location */}
       <div style={{ marginBottom: 16 }}>
         <label
@@ -131,7 +171,7 @@ export default function ReportTab({ listening, onToggleListen }) {
           style={{
             width: "100%",
             background: COLORS.bg,
-            border: `1px solid ${reportLoc ? COLORS.accent + "66" : COLORS.cardBorder}`,
+            border: `1px solid ${locTouched && !reportLoc ? COLORS.warn : reportLoc ? COLORS.accent + "66" : COLORS.cardBorder}`,
             borderRadius: 12,
             padding: "12px 14px",
             color: COLORS.text,
@@ -143,10 +183,16 @@ export default function ReportTab({ listening, onToggleListen }) {
           }}
           placeholder="Ej: Cra 15 con Cll 85, cerca del semáforo"
           value={reportLoc}
-          onChange={(e) => setReportLoc(e.target.value)}
+          onChange={(e) => { setReportLoc(e.target.value); setLocTouched(true); }}
           aria-label="Ubicación del problema"
+          aria-invalid={locTouched && !reportLoc}
           required
         />
+        {locTouched && !reportLoc && (
+          <p style={{ fontSize: 11, color: COLORS.warn, margin: "4px 0 0", paddingLeft: 2 }}>
+            Indica la ubicación para continuar
+          </p>
+        )}
       </div>
 
       {/* Description */}
@@ -255,6 +301,11 @@ export default function ReportTab({ listening, onToggleListen }) {
       {!reportType && (
         <p style={{ fontSize: 12, color: COLORS.textMuted, textAlign: "center", marginTop: 8 }}>
           Selecciona el tipo de problema para continuar
+        </p>
+      )}
+      {reportType && !reportLoc && (
+        <p style={{ fontSize: 12, color: COLORS.textMuted, textAlign: "center", marginTop: 8 }}>
+          Indica la ubicación para enviar
         </p>
       )}
     </div>

@@ -40,6 +40,23 @@ export default function RoutesTab({ query, onQueryChange, listening, onToggleLis
           aria-label="Buscar destino"
           type="search"
         />
+        {query.length > 0 && (
+          <button
+            style={{
+              background: "none",
+              border: "none",
+              color: COLORS.textMuted,
+              fontSize: 16,
+              cursor: "pointer",
+              padding: "0 4px",
+              lineHeight: 1,
+            }}
+            onClick={() => onQueryChange("")}
+            aria-label="Limpiar búsqueda"
+          >
+            ✕
+          </button>
+        )}
         <button
           className={listening ? "mic-active" : ""}
           style={{

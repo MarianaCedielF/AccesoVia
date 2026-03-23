@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { COLORS } from "./styles/colors";
+import { REPORTS } from "./data/reports";
+import { ISSUE_TYPES } from "./data/routes";
 import Header from "./components/Header";
 import NavigationModal from "./components/NavigationModal";
 import FloatingButton from "./components/FloatingButton";
 import RoutesTab from "./pages/RoutesTab";
 import AlertsTab from "./pages/AlertsTab";
 import ReportTab from "./pages/ReportTab";
+
+const HIGH_SEVERITY_TYPES = ["Obstáculo en acera", "Rampa bloqueada"];
 
 export default function AccesoVia() {
   const [tab, setTab] = useState("rutas");
@@ -15,6 +19,22 @@ export default function AccesoVia() {
   const [highContrast, setHighContrast] = useState(false);
   const [audioActive, setAudioActive] = useState(false);
   const [query, setQuery] = useState("");
+  const [reports, setReports] = useState(REPORTS);
+  const [newAlertCount, setNewAlertCount] = useState(0);
+  const [completedRoute, setCompletedRoute] = useState(null);
+
+  const handleTabChange = (newTab) => {
+    setTab(newTab);
+    if (newTab === "alertas") setNewAlertCount(0);
+  };
+
+  const handleAddReport = (newReport) => {
+    const severity = HIGH_SEVERITY_TYPES.includes(newReport.type) ? "alta" : "media";
+    const issueType = ISSUE_TYPES.find((t) => t.label === newReport.type);
+    setReports((prev) => [{ ...newReport, severity, icon: issueType?.icon ?? "📝" }, ...prev]);
+    setNewAlertCount((n) => n + 1);
+    setTab("alertas");
+  };
 
   const handleStartRoute = (route) => {
     setActiveRoute(route);
@@ -25,7 +45,10 @@ export default function AccesoVia() {
     if (activeStep < activeRoute.steps.length - 1) {
       setActiveStep((s) => s + 1);
     } else {
+      const finished = activeRoute;
       setActiveRoute(null);
+      setCompletedRoute(finished);
+      setTimeout(() => setCompletedRoute(null), 3000);
     }
   };
 
@@ -97,9 +120,10 @@ export default function AccesoVia() {
 
         <Header
           activeTab={tab}
-          onTabChange={setTab}
+          onTabChange={handleTabChange}
           highContrast={highContrast}
           onToggleContrast={() => setHighContrast((c) => !c)}
+          newAlertCount={newAlertCount}
         />
 
         <main
@@ -121,12 +145,13 @@ export default function AccesoVia() {
             />
           )}
 
-          {tab === "alertas" && <AlertsTab />}
+          {tab === "alertas" && <AlertsTab reports={reports} newCount={newAlertCount} />}
 
           {tab === "reportar" && (
             <ReportTab
               listening={listening}
               onToggleListen={handleToggleListen}
+              onAddReport={handleAddReport}
             />
           )}
         </main>
@@ -144,6 +169,42 @@ export default function AccesoVia() {
             onClose={() => setActiveRoute(null)}
             onSelectStep={setActiveStep}
           />
+        )}
+
+        {completedRoute && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.85)",
+              zIndex: 200,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 24,
+            }}
+            role="status"
+            aria-live="assertive"
+          >
+            <div
+              style={{
+                background: COLORS.card,
+                borderRadius: 24,
+                padding: "40px 32px",
+                textAlign: "center",
+                maxWidth: 320,
+                border: `1px solid ${COLORS.ok}44`,
+              }}
+            >
+              <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.ok, marginBottom: 8 }}>
+                ¡Llegaste!
+              </div>
+              <div style={{ fontSize: 14, color: COLORS.textMuted, lineHeight: 1.5 }}>
+                {completedRoute.name}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
